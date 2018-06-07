@@ -5,155 +5,158 @@ using System.Linq;
 using Microsoft.ML;
 using Microsoft.ML.Data;
 using Microsoft.ML.Models;
+using Microsoft.ML.Runtime;
 using Microsoft.ML.Runtime.Api;
 using Microsoft.ML.Trainers;
 using Microsoft.ML.Transforms;
 
-namespace BeerMl
+namespace BeerML
 {
-	class Program
-	{
-		static void Main(string[] args)
-		{
+    class Program
+    {
+        static void Main(string[] args)
+        {
             Problem1();
 
             //Problem2();
 
             //Problem3();
-		}
 
-		private static void Problem1()
-		{
-			// Define pipeline
-			var pipeline = new LearningPipeline();
+            //Problem4();
+
+            //Problem1CrossValidate();
+        }
+
+        private static void Problem1()
+        {
+            // Define pipeline
+            var pipeline = new LearningPipeline();
 
             pipeline.Add(new TextLoader("problem1_train.csv").CreateFrom<BeerOrWineData>(useHeader: true, separator: ','));
 
-			pipeline.Add(new TextFeaturizer("Features", "FullName"));
+            pipeline.Add(new TextFeaturizer("Features", "FullName"));
 
-			pipeline.Add(new Dictionarizer(("Type", "Label")));
+            pipeline.Add(new Dictionarizer(("Type", "Label")));
 
-			pipeline.Add(new StochasticDualCoordinateAscentBinaryClassifier() { });
+            pipeline.Add(new StochasticDualCoordinateAscentBinaryClassifier() { });
 
-			pipeline.Add(new PredictedLabelColumnOriginalValueConverter() { PredictedLabelColumn = "PredictedLabel" });
+            pipeline.Add(new PredictedLabelColumnOriginalValueConverter() { PredictedLabelColumn = "PredictedLabel" });
 
-			// Train model
+            // Train model
             var stopWatch = new Stopwatch();
             stopWatch.Start();
             var model = pipeline.Train<BeerOrWineData, BeerOrWinePrediction>();
             stopWatch.Stop();
             Console.WriteLine($"Trained the model in: {stopWatch.ElapsedMilliseconds / 1000} seconds.");
 
-			// Evaluate model
+            // Evaluate model
             var testData = new TextLoader("problem1_validate.csv").CreateFrom<BeerOrWineData>(useHeader: true, separator: ',');
 
-			var evaluator = new BinaryClassificationEvaluator();
-			BinaryClassificationMetrics metrics = evaluator.Evaluate(model, testData);
+            var evaluator = new BinaryClassificationEvaluator();
+            BinaryClassificationMetrics metrics = evaluator.Evaluate(model, testData);
 
-			Console.WriteLine(metrics.Accuracy.ToString("P"));
+            Console.WriteLine(metrics.Accuracy.ToString("P"));
             // show matrix
 
-			// Use model
-			IEnumerable<BeerOrWineData> drinks = new[]
-			{
-				new BeerOrWineData { FullName = "Castle Stout" },
-				new BeerOrWineData { FullName = "Folkes Röda IPA"},
-				new BeerOrWineData { FullName = "Fryken Havre Ale"},
-				new BeerOrWineData { FullName = "Barolo Gramolere"},
-				new BeerOrWineData { FullName = "Château de Lavison"},
-				new BeerOrWineData { FullName = "Korlat Cabernet Sauvignon"}
-			};
+            // Use model
+            IEnumerable<BeerOrWineData> drinks = new[]
+            {
+                new BeerOrWineData { FullName = "Castle Stout" },
+                new BeerOrWineData { FullName = "Folkes Röda IPA"},
+                new BeerOrWineData { FullName = "Fryken Havre Ale"},
+                new BeerOrWineData { FullName = "Barolo Gramolere"},
+                new BeerOrWineData { FullName = "Château de Lavison"},
+                new BeerOrWineData { FullName = "Korlat Cabernet Sauvignon"}
+            };
 
-			var predictions = model.Predict(drinks).ToList();
+            var predictions = model.Predict(drinks).ToList();
 
-			Console.ReadLine();
-		}
+            Console.ReadLine();
+        }
 
-		private static void Problem2()
-		{
-			// Define pipeline
-			var pipeline = new LearningPipeline();
+        private static void Problem2()
+        {
+            // Define pipeline
+            var pipeline = new LearningPipeline();
 
-			pipeline.Add(new TextLoader("problem2_train.csv").CreateFrom<DrinkData>(useHeader: true, separator: ','));
+            pipeline.Add(new TextLoader("problem2_train.csv").CreateFrom<DrinkData>(useHeader: true, separator: ','));
 
-			pipeline.Add(new TextFeaturizer("FullName", "FullName"));
-			pipeline.Add(new TextFeaturizer("Country", "Country"));
-			pipeline.Add(new ColumnConcatenator("Features", "FullName", "Country"));
+            pipeline.Add(new TextFeaturizer("FullName", "FullName"));
+            pipeline.Add(new TextFeaturizer("Country", "Country"));
+            pipeline.Add(new ColumnConcatenator("Features", "FullName", "Country"));
 
-			pipeline.Add(new Dictionarizer(("Type", "Label")));
+            pipeline.Add(new Dictionarizer(("Type", "Label")));
 
-			pipeline.Add(new StochasticDualCoordinateAscentClassifier { });
+            pipeline.Add(new StochasticDualCoordinateAscentClassifier { });
 
-			pipeline.Add(new PredictedLabelColumnOriginalValueConverter() { PredictedLabelColumn = "PredictedLabel" });
+            pipeline.Add(new PredictedLabelColumnOriginalValueConverter() { PredictedLabelColumn = "PredictedLabel" });
 
-			// Train model
+            // Train model
             var stopWatch = new Stopwatch();
             stopWatch.Start();
-			var model = pipeline.Train<DrinkData, DrinkPrediction>();
+            var model = pipeline.Train<DrinkData, DrinkPrediction>();
             stopWatch.Stop();
             Console.WriteLine($"Trained the model in: {stopWatch.ElapsedMilliseconds / 1000} seconds.");
 
-			// Evaluate model
+            // Evaluate model
             var testData = new TextLoader("problem2_validate.csv").CreateFrom<DrinkData>(useHeader: true, separator: ',');
 
-			var evaluator = new ClassificationEvaluator { OutputTopKAcc = 1 };
-			ClassificationMetrics metrics = evaluator.Evaluate(model, testData);
+            var evaluator = new ClassificationEvaluator { OutputTopKAcc = 1 };
+            ClassificationMetrics metrics = evaluator.Evaluate(model, testData);
 
-			Console.WriteLine(metrics.TopKAccuracy.ToString("P"));
+            Console.WriteLine(metrics.TopKAccuracy.ToString("P"));
 
-			// Use model
-			IEnumerable<DrinkData> drinks = new[]
-			{
-				new DrinkData { FullName = "Weird Stout" },
-				new DrinkData { FullName = "Folkes Röda IPA"},
-				new DrinkData { FullName = "Fryken Havre Ale"},
-				new DrinkData { FullName = "Barolo Gramolere"},
-				new DrinkData { FullName = "Château de Lavison"},
-				new DrinkData { FullName = "Korlat Cabernet Sauvignon"},
-				new DrinkData { FullName = "Glengoyne 25 Years"},
-				new DrinkData { FullName = "Oremus Late Harvest Tokaji Cuvée"},
-				new DrinkData { FullName = "Izadi Blanco"},
-				new DrinkData { FullName = "Ca'Montini Prosecco Extra Dry"}
-			};
+            // Use model
+            IEnumerable<DrinkData> drinks = new[]
+            {
+                new DrinkData { FullName = "Weird Stout" },
+                new DrinkData { FullName = "Folkes Röda IPA"},
+                new DrinkData { FullName = "Fryken Havre Ale"},
+                new DrinkData { FullName = "Barolo Gramolere"},
+                new DrinkData { FullName = "Château de Lavison"},
+                new DrinkData { FullName = "Korlat Cabernet Sauvignon"},
+                new DrinkData { FullName = "Glengoyne 25 Years"},
+                new DrinkData { FullName = "Oremus Late Harvest Tokaji Cuvée"},
+                new DrinkData { FullName = "Izadi Blanco"},
+                new DrinkData { FullName = "Ca'Montini Prosecco Extra Dry"}
+            };
 
             string[] names;
             model.TryGetScoreLabelNames(out names);
 
-			var predictions = model.Predict(drinks).ToList();
+            var predictions = model.Predict(drinks).ToList();
 
-			Console.ReadLine();
-		}
+            Console.ReadLine();
+        }
 
-		private static void Problem3()
-		{
-			// Define pipeline
-			var pipeline = new LearningPipeline();
+        private static void Problem3()
+        {
+            // Define pipeline
+            var pipeline = new LearningPipeline();
 
-			pipeline.Add(new TextLoader("problem3_train.csv").CreateFrom<PriceData>(useHeader: true, separator: ','));
+            pipeline.Add(new TextLoader("problem3_train.csv").CreateFrom<PriceData>(useHeader: true, separator: ','));
 
-			pipeline.Add(new ColumnConcatenator("NumericalFeatures",
-				"Volume"));
+            pipeline.Add(new ColumnConcatenator("NumericalFeatures",
+                "Volume"));
 
-			pipeline.Add(new ColumnConcatenator("CategoryFeatures",
-				 "Country", "Type"));
+            pipeline.Add(new ColumnConcatenator("CategoryFeatures",
+                 "Country", "Type"));
 
-			pipeline.Add(new TextFeaturizer("FullName", "FullName"));
+            pipeline.Add(new TextFeaturizer("FullName", "FullName"));
 
-			pipeline.Add(new CategoricalOneHotVectorizer("CategoryFeatures"));
-			pipeline.Add(new ColumnConcatenator("Features",
-				"FullName", "NumericalFeatures", "CategoryFeatures"));
+            pipeline.Add(new CategoricalOneHotVectorizer("CategoryFeatures"));
+            pipeline.Add(new ColumnConcatenator("Features",
+                "FullName", "NumericalFeatures", "CategoryFeatures"));
 
-			//pipeline.Add(new StochasticDualCoordinateAscentRegressor());
-			pipeline.Add(new PoissonRegressor());
+            //pipeline.Add(new StochasticDualCoordinateAscentRegressor());
+            pipeline.Add(new PoissonRegressor());
 
             // Train model
-            var stopWatch = new Stopwatch(); 
+            var stopWatch = new Stopwatch();
             stopWatch.Start();
-			var model = pipeline.Train<PriceData, PricePrediction>();
-            stopWatch.Stop(); 
-            Console.WriteLine($"Trained the model in: {stopWatch.ElapsedMilliseconds/1000} seconds.");
-
-            //model.WriteAsync("problem3.model.zip");
+            var model = pipeline.Train<PriceData, PricePrediction>();
+            stopWatch.Stop();
+            Console.WriteLine($"Trained the model in: {stopWatch.ElapsedMilliseconds / 1000} seconds.");
 
             // Evaluate model
             //var testData = new TextLoader<PriceData>("problem3_validate.csv", useHeader: true, separator: ",");
@@ -174,77 +177,158 @@ namespace BeerMl
                 new PriceData { FullName="Château de la Victoria Cru", Type="Rött vin", Volume=750, Country="Frankrike" }
             };
 
-			var predictions = model.Predict(drinks).ToList();
+            var predictions = model.Predict(drinks).ToList();
 
-			Console.ReadLine();
-		}
+            Console.ReadLine();
+        }
 
-	}
+        private static void Problem4()
+        {
+            // Define pipeline
+            //var pipeline = new LearningPipeline();
+
+            //pipeline.Add(new TextLoader("problem4.csv").CreateFrom<ClusteringData>(useHeader: true, separator: ','));
+
+            //pipeline.Add(new TextFeaturizer("Features", "FullName")
+            //{
+            //    WordFeatureExtractor = new NGramNgramExtractor() { NgramLength = 2, AllLengths = false },
+            //    KeepNumbers = true,
+            //    Language = TextTransformLanguage.English
+            //});
+
+            //pipeline.Add(new KMeansPlusPlusClusterer() { K = 2 });
+
+            // Train model
+            //var stopWatch = new Stopwatch();
+            //stopWatch.Start();
+            //var model = pipeline.Train<ClusteringData, ClusteringPrediction>();
+            //model.WriteAsync("problem4.model.zip");
+            //stopWatch.Stop();
+            //Console.WriteLine($"Trained the model in: {stopWatch.ElapsedMilliseconds / 1000} seconds.");
+
+            var model = PredictionModel.ReadAsync<ClusteringData, ClusteringPrediction>("problem4.model.zip").GetAwaiter().GetResult();
+
+            // Use model
+            IEnumerable<ClusteringData> drinks = new[]
+            {
+                new ClusteringData { FullName = "Inchgower Maltbarn Bourbon Cask 24 Years" },
+                new ClusteringData { FullName = "Caol Ila 9 Years"},
+                new ClusteringData { FullName = "Ardmore 21 Years"},
+                new ClusteringData { FullName = "Crémant d'Alsace Riesling Brut"},
+                new ClusteringData { FullName = "Laurent-Perrier Millesime"},
+                new ClusteringData { FullName = "Lellè Prosecco Spumante"}
+            };
+
+            var predictions = model.Predict(drinks).ToList();
+
+            Console.ReadLine();
+        }
+
+        private static void Problem1CrossValidate()
+        {
+            // Define pipeline
+            var pipeline = new LearningPipeline();
+
+            pipeline.Add(new TextLoader("problem1.csv").CreateFrom<BeerOrWineData>(useHeader: true, separator: ','));
+
+            pipeline.Add(new TextFeaturizer("Features", "FullName"));
+
+            pipeline.Add(new Dictionarizer(("Type", "Label")));
+
+            pipeline.Add(new StochasticDualCoordinateAscentBinaryClassifier() { });
+
+            pipeline.Add(new PredictedLabelColumnOriginalValueConverter() { PredictedLabelColumn = "PredictedLabel" });
+
+            // Cross validation
+            var cv = new CrossValidator().CrossValidate<BeerOrWineData, BeerOrWinePrediction>(pipeline);
 
 
-	#region "Problem 1"
+            // show matrix
 
-	public class BeerOrWineData
-	{
-		[Column(ordinal: "0")]
-		public string FullName;
-		[Column(ordinal: "1")]
-		public string Type;
-	}
+            Console.ReadLine();
+        }
 
-	public class BeerOrWinePrediction
-	{
-		[ColumnName("PredictedLabel")]
-		public string Type;
-	}
+    }
 
-	#endregion
 
-	#region "Problem 2"
+    #region "Problem 1"
 
-	public class DrinkData
-	{
-		[Column(ordinal: "0")]
-		public string FullName;
-		[Column(ordinal: "1")]
-		public string Type;
-		[Column(ordinal: "2")]
-		public string Country;
-	}
+    public class BeerOrWineData
+    {
+        [Column(ordinal: "0")]
+        public string FullName;
+        [Column(ordinal: "1")]
+        public string Type;
+    }
 
-	public class DrinkPrediction
-	{
-		[ColumnName("PredictedLabel")]
-		public string Type;
+    public class BeerOrWinePrediction
+    {
+        [ColumnName("PredictedLabel")]
+        public string Type;
+    }
+
+    #endregion
+
+    #region "Problem 2"
+
+    public class DrinkData
+    {
+        [Column(ordinal: "0")]
+        public string FullName;
+        [Column(ordinal: "1")]
+        public string Type;
+        [Column(ordinal: "2")]
+        public string Country;
+    }
+
+    public class DrinkPrediction
+    {
+        [ColumnName("PredictedLabel")]
+        public string Type;
 
         [ColumnName("Score")]
         public float[] Scores;
-	}
+    }
 
-	#endregion
+    #endregion
 
-	#region "Problem 3"
+    #region "Problem 3"
 
-	public class PriceData
-	{
-		[Column(ordinal: "0")]
-		public string FullName;
-		[Column(ordinal: "1", name: "Label")]
-		public float Price;
-		[Column(ordinal: "2")]
-		public float Volume;
-		[Column(ordinal: "3")]
-		public string Type;
-		[Column(ordinal: "4")]
-		public string Country;
-	}
+    public class PriceData
+    {
+        [Column(ordinal: "0")]
+        public string FullName;
+        [Column(ordinal: "1", name: "Label")]
+        public float Price;
+        [Column(ordinal: "2")]
+        public float Volume;
+        [Column(ordinal: "3")]
+        public string Type;
+        [Column(ordinal: "4")]
+        public string Country;
+    }
 
-	public class PricePrediction
-	{
-		[ColumnName("Score")]
-		public float Price;
-	}
+    public class PricePrediction
+    {
+        [ColumnName("Score")]
+        public float Price;
+    }
 
+    #endregion
+
+    #region "Problem 4"
+    public class ClusteringData
+    {
+        [Column(ordinal: "0")]
+        public string FullName;
+    }
+    public class ClusteringPrediction
+    {
+        [ColumnName("PredictedLabel")]
+        public uint SelectedClusterId;
+        [ColumnName("Score")]
+        public float[] Distance;
+    }
     #endregion
 }
 
