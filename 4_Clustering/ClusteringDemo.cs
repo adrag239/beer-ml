@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.ML;
 using Microsoft.ML.Runtime.Api;
+using Microsoft.ML.Runtime.Data;
 
 namespace BeerML.Clustering
 {
@@ -22,29 +25,41 @@ namespace BeerML.Clustering
     {
         public static void Run()
         {
-            // Define pipeline
-            //var pipeline = new LearningPipeline();
+            // Define context
+            var mlContext = new MLContext(seed: 0);
 
-            //pipeline.Add(new TextLoader("4_Clustering/problem4.csv").CreateFrom<ClusteringData>(useHeader: true, separator: ','));
+            // Define data file format
+            TextLoader textLoader = mlContext.Data.TextReader(new TextLoader.Arguments()
+            {
+                Separator = ",",
+                HasHeader = true,
+                Column = new[]
+                {
+                    new TextLoader.Column("FullName", DataKind.Text, 0),
+                }
+            });
 
-            //pipeline.Add(new TextFeaturizer("Features", "FullName")
-            //{
-            //    WordFeatureExtractor = new NGramNgramExtractor() { NgramLength = 2, AllLengths = false },
-            //    KeepNumbers = true,
-            //    Language = TextTransformLanguage.English
-            //});
+            // Load training data
+            var trainingDataView = textLoader.Read("4_Clustering/problem4.csv");
 
-            //pipeline.Add(new KMeansPlusPlusClusterer() { K = 2 });
+            // Define features
+            var dataProcessPipeline =
+                    mlContext.Transforms.Text.FeaturizeText("FullName", "FullNameFeaturized")
+                    .Append(mlContext.Transforms.Concatenate("Features", "FullNameFeaturized"));
 
-            // Train model
-            //var stopWatch = new Stopwatch();
-            //stopWatch.Start();
-            //var model = pipeline.Train<ClusteringData, ClusteringPrediction>();
-            //model.WriteAsync("problem4.model.zip");
-            //stopWatch.Stop();
-            //Console.WriteLine($"Trained the model in: {stopWatch.ElapsedMilliseconds / 1000} seconds.");
+            // Use KMeans clustering
+            var trainer = mlContext.Clustering.Trainers.KMeans(features: "Features", clustersCount: 2);
 
-            var model = PredictionModel.ReadAsync<ClusteringData, ClusteringPrediction>("4_Clustering/problem4.model.zip").GetAwaiter().GetResult();
+            var trainingPipeline = dataProcessPipeline.Append(trainer);
+
+            // Train the model based on training data
+            var watch = Stopwatch.StartNew();
+            var trainedModel = trainingPipeline.Fit(trainingDataView);
+            watch.Stop();
+
+            Console.WriteLine($"Trained the model in: {watch.ElapsedMilliseconds / 1000} seconds.");
+
+            var predFunction = trainedModel.MakePredictionFunction<ClusteringData, ClusteringPrediction>(mlContext);
 
             // Use model
             IEnumerable<ClusteringData> drinks = new[]
@@ -57,7 +72,12 @@ namespace BeerML.Clustering
                 new ClusteringData { FullName = "Lellè Prosecco Spumante"}
             };
 
-            var predictions = model.Predict(drinks).ToList();
+            foreach (var drink in drinks)
+            {
+                var prediction = predFunction.Predict(drink);
+
+                Console.WriteLine($"{drink.FullName} is {prediction.SelectedClusterId}");
+            }
 
         }
     }

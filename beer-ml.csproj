@@ -7,12 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ML" Version="0.4.0" />
+    <PackageReference Include="Microsoft.ML" Version="0.8.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="1_BinaryClassification\" />
     <Folder Include="2_MultiClassClassification\" />
     <Folder Include="3_Regression\" />
     <Folder Include="4_Clustering\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="4_Clustering\problem4.model.zip" />
   </ItemGroup>
 </Project>

@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.ML;
-using Microsoft.ML.Data;
-using Microsoft.ML.Models;
 using Microsoft.ML.Runtime.Api;
-using Microsoft.ML.Trainers;
-using Microsoft.ML.Transforms;
+using Microsoft.ML.Runtime.Data;
 
 namespace BeerML.BinaryClassification
 {
@@ -16,54 +13,58 @@ namespace BeerML.BinaryClassification
         [Column(ordinal: "0")]
         public string FullName;
         [Column(ordinal: "1")]
-        public string Type;
+        public bool Beer;
     }
 
     public class BeerOrWinePrediction
     {
         [ColumnName("PredictedLabel")]
-        public string Type;
+        public bool Beer;
+
+        public float Probability { get; set; }
+
+        public float Score { get; set; }
     }
-    
+
     public class BinaryClassificationDemo
     {
         public static void Run()
         {
-            // Define pipeline
-            var pipeline = new LearningPipeline();
+            // Define context
+            var mlContext = new MLContext(seed: 0);
 
-            pipeline.Add(new TextLoader("1_BinaryClassification/problem1_train.csv").CreateFrom<BeerOrWineData>(useHeader: true, separator: ','));
+            // Define data file format
+            TextLoader textLoader = mlContext.Data.TextReader(new TextLoader.Arguments()
+            {
+                Separator = ",",
+                HasHeader = true,
+                Column = new[]
+                {
+                    new TextLoader.Column("FullName", DataKind.Text, 0),
+                    new TextLoader.Column("Beer", DataKind.Bool, 1)
+                }
+            });
 
-            pipeline.Add(new TextFeaturizer("Features", "FullName"));
+            // Load training data
+            var trainingDataView = textLoader.Read("1_BinaryClassification/problem1_train.csv");
 
-            pipeline.Add(new Dictionarizer(("Type", "Label")));
+            // Define features
+            var dataProcessPipeline = mlContext.Transforms.Text.FeaturizeText("FullName", "Features");
 
-            pipeline.Add(new StochasticDualCoordinateAscentBinaryClassifier() { });
-            //pipeline.Add(new FastTreeBinaryClassifier() { NumLeaves = 25, NumTrees = 25, MinDocumentsInLeafs = 2 });   // up to 91% 
-            //pipeline.Add(new FastForestBinaryClassifier() { NumLeaves = 25, NumTrees = 25, MinDocumentsInLeafs = 2 });  // 86%
-            //pipeline.Add(new StochasticDualCoordinateAscentBinaryClassifier() { }); // 95%
-            //pipeline.Add(new StochasticGradientDescentBinaryClassifier { }); // 92%
+            // Use Binary classification
+            var trainer = mlContext.BinaryClassification.Trainers.StochasticDualCoordinateAscent(labelColumn: "Beer", featureColumn: "Features");
 
-            pipeline.Add(new PredictedLabelColumnOriginalValueConverter() { PredictedLabelColumn = "PredictedLabel" });
+            var trainingPipeline = dataProcessPipeline.Append(trainer);
 
-            // Train model
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
-            var model = pipeline.Train<BeerOrWineData, BeerOrWinePrediction>();
-            stopWatch.Stop();
-            Console.WriteLine($"Trained the model in: {stopWatch.ElapsedMilliseconds / 1000} seconds.");
+            // Train the model based on training data
+            var watch = Stopwatch.StartNew();
+            var trainedModel = trainingPipeline.Fit(trainingDataView);
+            watch.Stop();
 
-            // Evaluate model
-            var testData = new TextLoader("1_BinaryClassification/problem1_validate.csv").CreateFrom<BeerOrWineData>(useHeader: true, separator: ',');
+            Console.WriteLine($"Trained the model in: {watch.ElapsedMilliseconds / 1000} seconds.");
 
-            var evaluator = new BinaryClassificationEvaluator();
-            BinaryClassificationMetrics metrics = evaluator.Evaluate(model, testData);
-
-            Console.WriteLine(metrics.Accuracy.ToString("P"));
-            // show matrix
-
-            // Use model
-            IEnumerable<BeerOrWineData> drinks = new[]
+            // Use model for predictions
+            List<BeerOrWineData> drinks = new List<BeerOrWineData>
             {
                 new BeerOrWineData { FullName = "Castle Stout" },
                 new BeerOrWineData { FullName = "Folkes Röda IPA"},
@@ -73,41 +74,26 @@ namespace BeerML.BinaryClassification
                 new BeerOrWineData { FullName = "Korlat Cabernet Sauvignon"}
             };
 
-            var predictions = model.Predict(drinks).ToList();
+            var predFunction = trainedModel.MakePredictionFunction<BeerOrWineData, BeerOrWinePrediction>(mlContext);
 
-        }
+            foreach (var drink in drinks)
+            {
+                var prediction = predFunction.Predict(drink);
 
-        public static void CrossValidate()
-        {
-            // Define pipeline
-            var pipeline = new LearningPipeline();
+                Console.WriteLine($"{drink.FullName} is {prediction.Beer}");
+            }
 
-            pipeline.Add(new TextLoader("1_BinaryClassification/problem1.csv").CreateFrom<BeerOrWineData>(useHeader: true, separator: ','));
+            // Evaluate the model
+            var testDataView = textLoader.Read("1_BinaryClassification/problem1_validate.csv");
+            var predictions = trainedModel.Transform(testDataView);
+            var metrics = mlContext.BinaryClassification.Evaluate(predictions, "Beer", "Score");
 
-            pipeline.Add(new TextFeaturizer("Features", "FullName"));
-
-            pipeline.Add(new Dictionarizer(("Type", "Label")));
-
-            pipeline.Add(new StochasticDualCoordinateAscentBinaryClassifier() { });
-
-            pipeline.Add(new PredictedLabelColumnOriginalValueConverter() { PredictedLabelColumn = "PredictedLabel" });
+            Console.WriteLine($"Accuracy: {metrics.Accuracy:P2}");
 
             // Cross validation
-            var cv = new CrossValidator().CrossValidate<BeerOrWineData, BeerOrWinePrediction>(pipeline);
-
-            // show matrix
+            var fullDataView = textLoader.Read("1_BinaryClassification/problem1.csv");
+            var cvResults = mlContext.BinaryClassification.CrossValidate(fullDataView, trainingPipeline, numFolds: 5, labelColumn: "Beer");
+            Console.WriteLine($"Avg Accuracy is: {cvResults.Select(r => r.metrics.Accuracy).Average():P2}");
         }
     }
 }
-
-//{
-//    KeepDiacritics = false,
-//    KeepPunctuations = false,
-//    TextCase = TextNormalizerTransformCaseNormalizationMode.Lower,
-//    OutputTokens = true,
-//    StopWordsRemover = new PredefinedStopWordsRemover(),
-//    VectorNormalizer = TextTransformTextNormKind.L2,
-//    CharFeatureExtractor = new NGramNgramExtractor() { NgramLength = 3, AllLengths = false },
-//    WordFeatureExtractor = new NGramNgramExtractor() { NgramLength = 2, AllLengths = true }
-//});
-

@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.ML;
-using Microsoft.ML.Data;
-using Microsoft.ML.Models;
 using Microsoft.ML.Runtime.Api;
-using Microsoft.ML.Trainers;
-using Microsoft.ML.Transforms;
+using Microsoft.ML.Runtime.Data;
 
 namespace BeerML.MultiClassClassification
 {
@@ -34,37 +31,47 @@ namespace BeerML.MultiClassClassification
     {
         public static void Run()
         {
-            // Define pipeline
-            var pipeline = new LearningPipeline();
+            // Define context
+            var mlContext = new MLContext(seed: 0);
 
-            pipeline.Add(new TextLoader("2_MultiClassClassification/problem2_train.csv").CreateFrom<DrinkData>(useHeader: true, separator: ','));
+            // Define data file format
+            TextLoader textLoader = mlContext.Data.TextReader(new TextLoader.Arguments()
+            {
+                Separator = ",",
+                HasHeader = true,
+                Column = new[]
+                {
+                    new TextLoader.Column("FullName", DataKind.Text, 0),
+                    new TextLoader.Column("Type", DataKind.Text, 1),
+                    new TextLoader.Column("Country", DataKind.Text, 2)
+                }
+            });
 
-            pipeline.Add(new TextFeaturizer("FullName", "FullName"));
-            pipeline.Add(new TextFeaturizer("Country", "Country"));
-            pipeline.Add(new ColumnConcatenator("Features", "FullName", "Country"));
+            // Load training data
+            var trainingDataView = textLoader.Read("2_MultiClassClassification/problem2_train.csv");
 
-            pipeline.Add(new Dictionarizer(("Type", "Label")));
+            // Define features
+            var dataProcessPipeline = 
+                mlContext.Transforms.Conversion.MapValueToKey("Type", "Label")
+                    .Append(mlContext.Transforms.Text.FeaturizeText("FullName", "FullNameFeaturized"))
+                    .Append(mlContext.Transforms.Categorical.OneHotEncoding("Country", "CountryEncoded"))
+                    .Append(mlContext.Transforms.Concatenate("Features", "FullNameFeaturized", "CountryEncoded"));
 
-            pipeline.Add(new StochasticDualCoordinateAscentClassifier { });
+            // Use Multiclass classification
+            var trainer = mlContext.MulticlassClassification.Trainers.StochasticDualCoordinateAscent(DefaultColumnNames.Label, DefaultColumnNames.Features);
 
-            pipeline.Add(new PredictedLabelColumnOriginalValueConverter() { PredictedLabelColumn = "PredictedLabel" });
+            var trainingPipeline = dataProcessPipeline
+                .Append(trainer)
+                .Append(mlContext.Transforms.Conversion.MapKeyToValue("PredictedLabel"));
 
-            // Train model
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
-            var model = pipeline.Train<DrinkData, DrinkPrediction>();
-            stopWatch.Stop();
-            Console.WriteLine($"Trained the model in: {stopWatch.ElapsedMilliseconds / 1000} seconds.");
+            // Train the model based on training data
+            var watch = Stopwatch.StartNew();
+            var trainedModel = trainingPipeline.Fit(trainingDataView);
+            watch.Stop();
 
-            // Evaluate model
-            var testData = new TextLoader("2_MultiClassClassification/problem2_validate.csv").CreateFrom<DrinkData>(useHeader: true, separator: ',');
+            Console.WriteLine($"Trained the model in: {watch.ElapsedMilliseconds / 1000} seconds.");
 
-            var evaluator = new ClassificationEvaluator { OutputTopKAcc = 1 };
-            ClassificationMetrics metrics = evaluator.Evaluate(model, testData);
-
-            Console.WriteLine(metrics.TopKAccuracy.ToString("P"));
-
-            // Use model
+            // Use model for predictions
             IEnumerable<DrinkData> drinks = new[]
             {
                 new DrinkData { FullName = "Weird Stout" },
@@ -79,10 +86,21 @@ namespace BeerML.MultiClassClassification
                 new DrinkData { FullName = "Ca'Montini Prosecco Extra Dry"}
             };
 
-            string[] names;
-            model.TryGetScoreLabelNames(out names);
+            var predFunction = trainedModel.MakePredictionFunction<DrinkData, DrinkPrediction>(mlContext);
 
-            var predictions = model.Predict(drinks).ToList();
+            foreach (var drink in drinks)
+            {
+                var prediction = predFunction.Predict(drink);
+
+                Console.WriteLine($"{drink.FullName} is {prediction.Type}");
+            }
+
+            // Evaluate the model
+            var testDataView = textLoader.Read("2_MultiClassClassification/problem2_validate.csv");
+            var predictions = trainedModel.Transform(testDataView);
+            var metrics = mlContext.MulticlassClassification.Evaluate(predictions);
+
+            Console.WriteLine($"Accuracy: {metrics.AccuracyMicro:P2}");
 
         }
     }
