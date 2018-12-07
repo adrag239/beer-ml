@@ -15,7 +15,4 @@
     <Folder Include="3_Regression\" />
     <Folder Include="4_Clustering\" />
   </ItemGroup>
-  <ItemGroup>
-    <None Remove="4_Clustering\problem4.model.zip" />
-  </ItemGroup>
 </Project>
