@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.ML;
-using Microsoft.ML.Runtime.Api;
-using Microsoft.ML.Runtime.Data;
+using Microsoft.ML.Data;
 
 namespace BeerML.BinaryClassification
 {
     public class BeerOrWineData
     {
-        [Column(ordinal: "0")]
+        [LoadColumn(0)]
         public string FullName;
-        [Column(ordinal: "1")]
+        [LoadColumn(1)]
         public bool Beer;
     }
 
@@ -31,28 +30,18 @@ namespace BeerML.BinaryClassification
         public static void Run()
         {
             // Define context
-            var mlContext = new MLContext(seed: 0);
-
-            // Define data file format
-            TextLoader textLoader = mlContext.Data.TextReader(new TextLoader.Arguments()
-            {
-                Separator = ",",
-                HasHeader = true,
-                Column = new[]
-                {
-                    new TextLoader.Column("FullName", DataKind.Text, 0),
-                    new TextLoader.Column("Beer", DataKind.Bool, 1)
-                }
-            });
+            var mlContext = new MLContext();
 
             // Load training data
-            var trainingDataView = textLoader.Read("1_BinaryClassification/problem1_train.csv");
-
+            var trainingDataView = mlContext.Data.LoadFromTextFile<BeerOrWineData>(
+                "1_BinaryClassification/problem1_train.csv", 
+                hasHeader: true, 
+                separatorChar: ',' );
             // Define features
-            var dataProcessPipeline = mlContext.Transforms.Text.FeaturizeText("FullName", "Features");
+            var dataProcessPipeline = mlContext.Transforms.Text.FeaturizeText("Features", "FullName");
 
             // Use Binary classification
-            var trainer = mlContext.BinaryClassification.Trainers.StochasticDualCoordinateAscent(labelColumn: "Beer", featureColumn: "Features");
+            var trainer = mlContext.BinaryClassification.Trainers.StochasticDualCoordinateAscent(labelColumnName: "Beer", featureColumnName: "Features");
 
             var trainingPipeline = dataProcessPipeline.Append(trainer);
 
@@ -74,7 +63,7 @@ namespace BeerML.BinaryClassification
                 new BeerOrWineData { FullName = "Korlat Cabernet Sauvignon"}
             };
 
-            var predFunction = trainedModel.MakePredictionFunction<BeerOrWineData, BeerOrWinePrediction>(mlContext);
+            var predFunction = trainedModel.CreatePredictionEngine<BeerOrWineData, BeerOrWinePrediction>(mlContext);
 
             foreach (var drink in drinks)
             {
@@ -84,16 +73,22 @@ namespace BeerML.BinaryClassification
             }
 
             // Evaluate the model
-            var testDataView = textLoader.Read("1_BinaryClassification/problem1_validate.csv");
+            var testDataView = mlContext.Data.LoadFromTextFile<BeerOrWineData>(
+                "1_BinaryClassification/problem1_validate.csv", 
+                hasHeader: true,
+                separatorChar: ',');
             var predictions = trainedModel.Transform(testDataView);
             var metrics = mlContext.BinaryClassification.Evaluate(predictions, "Beer", "Score");
 
             Console.WriteLine($"Accuracy: {metrics.Accuracy:P2}");
 
             // Cross validation
-            var fullDataView = textLoader.Read("1_BinaryClassification/problem1.csv");
+            var fullDataView = mlContext.Data.LoadFromTextFile<BeerOrWineData>(
+                "1_BinaryClassification/problem1.csv", 
+                hasHeader: true,
+                separatorChar: ',');
             var cvResults = mlContext.BinaryClassification.CrossValidate(fullDataView, trainingPipeline, numFolds: 5, labelColumn: "Beer");
-            Console.WriteLine($"Avg Accuracy is: {cvResults.Select(r => r.metrics.Accuracy).Average():P2}");
+            Console.WriteLine($"Avg Accuracy is: {cvResults.Select(r => r.Metrics.Accuracy).Average():P2}");
         }
     }
 }

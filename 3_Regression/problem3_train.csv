@@ -359,7 +359,6 @@ Domaine du Petit Clocher Anjou Blanc,175,750,Vitt vin,Frankrike
 Auramaris Vermentino,126,750,Vitt vin,Italien
 Síria Branco,129,750,Vitt vin,Portugal
 Convento de Aguiar Reserva Tinto,149,750,Rött vin,Portugal
-"Dr von Bassermann-Jordan Sauvignon Blanc ""S"" Trocken",349,750,Vitt vin,Tyskland
 Samichlaus Classic,49.2,330,Öl,Österrike
 Domaine Bousquet Reserve Cabernet Sauvignon,119,750,Rött vin,Argentina
 Jädraöl IPA,27.7,330,Öl,Sverige
@@ -2236,7 +2235,6 @@ Victoria La Dolce Vita Rosé,101,750,Mousserande vin,Italien
 Bennati Valpolicella Ripasso Superiore,131,750,Rött vin,Italien
 Antiyal,449,750,Rött vin,Chile
 Amarone della Valpolicella Bennati,230,750,Rött vin,Italien
-"Vigna Martina Isimbarda, Riesling",160,750,Vitt vin,Italien
 Riesling Schlossberg Grand Cru,249,375,Vitt vin,Frankrike
 Cuvée Ste Catherine Riesling Schlossberg Grand Cru,529,750,Vitt vin,Frankrike
 Weihenstephaner Hefe Weissbier,23.5,500,Öl,Tyskland
@@ -2257,9 +2255,7 @@ Kövágó Furmint,299,750,Vitt vin,Ungern
 Augé-Dascier Tradition Brut,346,750,Mousserande vin,Frankrike
 Augé-Dascier Prestige Rosé Brut,381,750,Mousserande vin,Frankrike
 Collepiano Sagrantino di Montefalco,259,750,Rött vin,Italien
-"Gelso d'Oro Podere 29, Nero di Troia (ekad)",249,750,Rött vin,Italien
 Zensa Nero di Troia Organico,99,750,Rött vin,Italien
-"Gelso Nero Podere 29, Nero di Troia",140,750,Rött vin,Italien
 Betella Franciacorta,279,750,Mousserande vin,Italien
 eXcentric Incanto Chardonnay Sauvignon Blanc,150,750,Vitt vin,Bulgarien
 Koroné Poderi Marini,133,750,Rött vin,Italien
@@ -2618,7 +2614,6 @@ Cabreo il Borgo,325,750,Rött vin,Italien
 Hermitage Rouge Jean Louis Chave,2200,750,Rött vin,Frankrike
 Brekeriet Cassis,109,750,Öl,Sverige
 Plan B! Chardonnay,139,750,Vitt vin,Australien
-"Plan B! ""OD"" Riesling",129,750,Vitt vin,Australien
 Apothic Dark,109,750,Rött vin,USA
 Rogue Nation Brutal india Pale Ale,29.9,355,Öl,USA
 Dark Horse Cabernet Sauvignon,89,750,Rött vin,USA
@@ -3212,7 +3207,6 @@ Brygghuset Finn Karnevöl,10,330,Öl,Sverige
 Viña Ilusión,165,750,Rött vin,Spanien
 Obolon Extra,37.5,500,Öl,Ukraina
 Twilight Diamond 10 Years,525,700,Whisky,Storbritannien
-"Beerbliotek That's Not How Anagrams Work, Mate",31.9,330,Öl,Sverige
 Stadspuls,26.9,330,Öl,Sverige
 Coppersmiths Summer IPA,24.9,330,Öl,Sverige
 Költur Bonobo India Pale Ale,27.9,330,Öl,Sverige
@@ -3285,7 +3279,6 @@ J-M Sélèque Commedia Premier Cru Extra Brut,398,750,Mousserande vin,Frankrike
 Underwood Pinot Noir,65,375,Rött vin,USA
 Wildwux,139,750,Rött vin,Österrike
 Love Noir,79,750,Rött vin,USA
-"Mizzon Amandorlato, Recioto",699,750,Rött vin,Italien
 Guinness Extra Stout,18.9,330,Öl,Irland
 Gaia & Rey,1583,750,Vitt vin,Italien
 Hungry Wines Furmint Barrique,169,750,Vitt vin,Ungern
@@ -6314,7 +6307,6 @@ Marqués de Monistrol Rosé,89,750,Mousserande vin,Spanien
 Blanton's Original Single Barrel,462,700,Whisky,USA
 Chinon Les Délices,142,750,Rött vin,Frankrike
 Veuve Clicquot Sec Gula Änkan,415,750,Mousserande vin,Frankrike
-"Veuve Clicquot Sec ""Gula Änkan""",230,375,Mousserande vin,Frankrike
 Ca' Maggiore Langhe Rosso,114,750,Rött vin,Italien
 Blanton's Straight from the Barrel,649,700,Whisky,USA
 Lirac Les Chenaies,115,750,Rött vin,Frankrike
@@ -7376,7 +7368,6 @@ Yeti Imperial Stout,39.9,355,Öl,USA
 Innis & Gunn Rum Barrel Blood Red Sky,21.9,330,Öl,Storbritannien
 Terre de Mistral Reserve,95,750,Rött vin,Frankrike
 Passitivo Primitivo,99,750,Rött vin,Italien
-"Bellman 6,0",14.9,500,Öl,Internationellt märke
 Blågul,11.3,500,Öl,Sverige
 Falcon Bayerskt,15.9,500,Öl,Sverige
 Ruit Hora,189,750,Rött vin,Italien
@@ -7418,8 +7409,6 @@ Krusovice Imperial,16.9,500,Öl,Tjeckien
 DAB,12.9,500,Öl,Tyskland
 König Pilsener,11.9,330,Öl,Tyskland
 Arboga Originalet,14.9,500,Öl,Sverige
-"Arboga 7,3",12.4,330,Öl,Sverige
-"Arboga 10,2",20.9,500,Öl,Sverige
 TT Original Lager,12.4,500,Öl,Sverige
 Three Towns Premium Lager,11.9,500,Öl,Sverige
 Vistamar Sepia Reserva Syrah,49,750,Rött vin,Chile
@@ -8497,7 +8486,6 @@ Niepoort Conciso,296,750,Rött vin,Portugal
 Niepoort Conciso Branco,199,750,Vitt vin,Portugal
 Szent Tamas Furmint,499,750,Vitt vin,Ungern
 Grand Mayne Merlot Cabernet Réserve,140,750,Rött vin,Frankrike
-"Kornell Pinot Grigio ""Gris""",178,750,Vitt vin,Italien
 New Belgium Belgian Reserve Sour Saison,159,650,Öl,USA
 Riesling Kalkstein Trocken,119,750,Vitt vin,Tyskland
 Terroir Riesling Schiefer Steillage Feinherb,119,750,Vitt vin,Tyskland
@@ -8528,7 +8516,6 @@ i Quercioli Lambrusco di Sorbara,109,750,Rött vin,Italien
 Confluence Chardonnay,239,750,Vitt vin,Sydafrika
 Langhe Chardonnay BelColle,267,750,Vitt vin,Italien
 Langhe Nebbiolo BelColle,267,750,Rött vin,Italien
-"Barbera d´Alba ""Le Masche"" BelColle",289,750,Rött vin,Italien
 Esprit Blanc De Tablas,399,750,Vitt vin,USA
 Fraser Gallop Estate Semillon Sauvignon Blanc,149,750,Vitt vin,Australien
 Luigino,281,750,Rött vin,Italien
@@ -8802,7 +8789,6 @@ Reyneke Cornerstone,199,750,Rött vin,Sydafrika
 Ca'Rugate Amarone della Valpolicella,499,750,Rött vin,Italien
 Ca'Rugate Studio,219,750,Vitt vin,Italien
 Le Bonheur Prima,140,750,Rött vin,Sydafrika
-"Parallel 45,3 Red Cuvée",110,750,Rött vin,Kroatien
 Founders Private Cellar 5 Years,1953,700,Whisky,Storbritannien
 Glen Esk Raw Cask 28 Years,4396,700,Whisky,Storbritannien
 Scottish Piper Blended,229,700,Whisky,Storbritannien
@@ -8823,7 +8809,6 @@ Röde Orm Skånsk Red Ale,25.7,330,Öl,Sverige
 Viña Pomal Reserva,120,750,Rött vin,Spanien
 Four Roses Small Batch,339,700,Whisky,USA
 El Rey Old Vine Garnacha,79,750,Rött vin,Spanien
-"Parallel 45,3 Grasevina",110,750,Vitt vin,Kroatien
 Châteauneuf du Pape Cellier des Princes,169,750,Rött vin,Frankrike
 Boom Boom! Syrah,149,750,Rött vin,USA
 Torre del Falasco Ripasso,99,750,Rött vin,Italien
@@ -8986,10 +8971,8 @@ Los Aguilares Tinto,139,750,Rött vin,Spanien
 Chinchilla Doble Doce,229,750,Rött vin,Spanien
 Chinchilla BF Vino Maestro Moscatel Dulce,129,500,Vitt vin,Spanien
 Ballast Point Grunion Pale Ale,23.9,355,Öl,USA
-"Ballast Point Even Keel Session India Pale Ale 3,8%",21.9,355,Öl,USA
 Mohawk Lushious IPA,33.9,330,Öl,Sverige
 Mohawk Extra IPA,28.9,330,Öl,Sverige
-"Ballast Point Mango Even Keel Seesion IPA 3,8%",21.9,355,Öl,USA
 Lenoble Grand Cru Chouilly Blanc de Blanc Brut,569,750,Mousserande vin,Frankrike
 Zenato Colombara Soave Classico,129,750,Vitt vin,Italien
 Chassagne-Montrachet Premier Cru Domaine Duc de Magenta Morgeot,649,750,Vitt vin,Frankrike
@@ -9250,7 +9233,6 @@ Johnnie Walker Blue Label Ghost & Rare - Brora & Rare,2399,700,Whisky,Storbritan
 Keller Pius Beerenauslese,249,375,Vitt vin,Tyskland
 Guitian Godello Sobre lias,169,750,Vitt vin,Spanien
 Siren Craft Brew Siren & Dugges Draugen,54.9,330,Öl,Storbritannien
-"BrewDog Hello, My Name is Agnetha",34.9,330,Öl,Storbritannien
 Gratena Chianti,109,750,Rött vin,Italien
 Olivier Leflaive Côte de Beaune Villages,299,750,Rött vin,Frankrike
 To Øl Garden of Haze,38.9,330,Öl,Belgien
@@ -10287,7 +10269,6 @@ Chardonnay Louis Latour,147,750,Vitt vin,Frankrike
 Pinot Noir Louis Latour,155,750,Rött vin,Frankrike
 Barbera d'Alba Superiore Josetta Saffirio,179,750,Rött vin,Italien
 Steinberger Rheingau Riesling Trocken,159,750,Vitt vin,Tyskland
-"Nederburg Ingenuity Red Sangiovese, Barbera, Nebbiolo",299,750,Rött vin,Sydafrika
 Nederburg Ingenuity White,210,750,Vitt vin,Sydafrika
 Mâcon-Villages Henri de Villamont,159,750,Vitt vin,Frankrike
 Jacob's Creek Wah,97,750,Vitt vin,Australien
@@ -10351,7 +10332,6 @@ Myskhako Riesling Reserve,278,750,Vitt vin,Ryssland
 Myskhako Chardonnay Reserve,278,750,Vitt vin,Ryssland
 Frédéric Thomas Ostronakademien Blanc De Blancs Premier Cru,299,750,Mousserande vin,Frankrike
 André Thomas Brut,279,750,Mousserande vin,Frankrike
-"Myskhako Cuvée Chardonnay, Sauvignon Blanc",368,750,Vitt vin,Ryssland
 Myskhako Reserve Sauvignon Blanc,278,750,Vitt vin,Ryssland
 Myskhako Reserve Cabernet,338,750,Rött vin,Ryssland
 Myskhako Reserve Merlot,318,750,Rött vin,Ryssland

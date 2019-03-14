@@ -4,24 +4,20 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.ML;
 using Microsoft.ML.Data;
-using Microsoft.ML.Runtime.Api;
-using Microsoft.ML.Runtime.Data;
-using Microsoft.ML.Trainers;
-using Microsoft.ML.Transforms;
 
 namespace BeerML.Regression
 {
     public class PriceData
     {
-        [Column(ordinal: "0")]
+        [LoadColumn(0)]
         public string FullName;
-        [Column(ordinal: "1")]
+        [LoadColumn(1)]
         public float Price;
-        [Column(ordinal: "2")]
+        [LoadColumn(2)]
         public float Volume;
-        [Column(ordinal: "3")]
+        [LoadColumn(3)]
         public string Type;
-        [Column(ordinal: "4")]
+        [LoadColumn(4)]
         public string Country;
     }
 
@@ -36,37 +32,25 @@ namespace BeerML.Regression
         public static void Run()
         {
             // Define context
-            var mlContext = new MLContext(seed: 0);
-
-            // Define data file format
-            TextLoader textLoader = mlContext.Data.TextReader(new TextLoader.Arguments()
-            {
-                Separator = ",",
-                HasHeader = true,
-                Column = new[]
-                {
-                    new TextLoader.Column("FullName", DataKind.Text, 0),
-                    new TextLoader.Column("Price", DataKind.R4, 1),
-                    new TextLoader.Column("Volume", DataKind.R4, 2),
-                    new TextLoader.Column("Type", DataKind.Text, 3),
-                    new TextLoader.Column("Country", DataKind.Text, 4)
-                }
-            });
+            var mlContext = new MLContext();
 
             // Load training data
-            var trainingDataView = textLoader.Read("3_Regression/problem3_train.csv");
+            var trainingDataView = mlContext.Data.LoadFromTextFile<PriceData>(
+              "3_Regression/problem3_train.csv",
+              hasHeader: true,
+              separatorChar: ',');
 
             // Define features
-            var dataProcessPipeline = mlContext.Transforms.CopyColumns("Price", "Label")
-                            .Append(mlContext.Transforms.Text.FeaturizeText("FullName", "FullNameFeaturized"))
-                            .Append(mlContext.Transforms.Categorical.OneHotEncoding("Type", "TypeEncoded"))
-                            .Append(mlContext.Transforms.Categorical.OneHotEncoding("Country", "CountryEncoded"))
-                            .Append(mlContext.Transforms.Categorical.OneHotEncoding("Volume", "VolumeEncoded"))
+            var dataProcessPipeline = mlContext.Transforms.CopyColumns("Label", "Price")
+                            .Append(mlContext.Transforms.Text.FeaturizeText("FullNameFeaturized", "FullName"))
+                            .Append(mlContext.Transforms.Categorical.OneHotEncoding("TypeEncoded", "Type"))
+                            .Append(mlContext.Transforms.Categorical.OneHotEncoding("CountryEncoded", "Country"))
+                            .Append(mlContext.Transforms.Categorical.OneHotEncoding("VolumeEncoded", "Volume"))
                             .Append(mlContext.Transforms.Concatenate("Features", "FullNameFeaturized", "TypeEncoded", "CountryEncoded", "VolumeEncoded"));
 
 
             // Use Poisson Regressionn
-            var trainer = mlContext.Regression.Trainers.PoissonRegression(labelColumn: "Label", featureColumn: "Features");
+            var trainer = mlContext.Regression.Trainers.PoissonRegression(labelColumnName: "Label", featureColumnName: "Features");
 
             var trainingPipeline = dataProcessPipeline.Append(trainer);
 
@@ -91,7 +75,7 @@ namespace BeerML.Regression
                 new PriceData { FullName="Château de la Berdié Grand Cru", Type="Rött vin", Volume=750, Country="Frankrike" }
             };
 
-            var predFunction = trainedModel.MakePredictionFunction<PriceData, PricePrediction>(mlContext);
+            var predFunction = trainedModel.CreatePredictionEngine<PriceData, PricePrediction>(mlContext);
 
             foreach (var drink in drinks)
             {
@@ -99,11 +83,6 @@ namespace BeerML.Regression
 
                 Console.WriteLine($"{drink.FullName} is {prediction.Price}");
             }
-
-            // Evaluate the model
-            // var testDataView = textLoader.Read("3_Regression/problem3_validate.csv");
-            // var predictions = trainedModel.Transform(testDataView);
-            // var metrics = mlContext.Regression.Evaluate(predictions, label: "Label", score: "Score");
 
         }
 
