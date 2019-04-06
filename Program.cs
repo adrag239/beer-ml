@@ -10,13 +10,13 @@ namespace BeerML
             BinaryClassification.BinaryClassificationDemo.Run();
 
             // 2
-            //MultiClassClassification.MultiClassClassificationDemo.Run();
+            MultiClassClassification.MultiClassClassificationDemo.Run();
 
             // 3
-            //Regression.RegressionDemo.Run();
+            Regression.RegressionDemo.Run();
 
             // 4
-            //Clustering.ClusteringDemo.Run();
+            Clustering.ClusteringDemo.Run();
 
             Console.ReadLine();
         }

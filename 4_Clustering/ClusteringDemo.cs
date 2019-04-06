@@ -41,10 +41,10 @@ namespace BeerML.Clustering
                     .Append(mlContext.Transforms.Concatenate("Features", "FullNameFeaturized"));
 
             // Use KMeans clustering
-            var trainer = mlContext.Clustering.Trainers.KMeans(new KMeansPlusPlusTrainer.Options
+            var trainer = mlContext.Clustering.Trainers.KMeans(new KMeansTrainer.Options
                 {
-                    ClustersCount = 2,
-                    FeatureColumn = "Features"
+                    NumberOfClusters = 2,
+                    FeatureColumnName = "Features"
                 }
             );
 
@@ -57,7 +57,8 @@ namespace BeerML.Clustering
 
             Console.WriteLine($"Trained the model in: {watch.ElapsedMilliseconds / 1000} seconds.");
 
-            var predFunction = trainedModel.CreatePredictionEngine<ClusteringData, ClusteringPrediction>(mlContext);
+            var predFunction = mlContext.Model.CreatePredictionEngine<ClusteringData, ClusteringPrediction>(trainedModel);
+
 
             // Use model
             IEnumerable<ClusteringData> drinks = new[]

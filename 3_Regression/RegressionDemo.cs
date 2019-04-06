@@ -50,7 +50,7 @@ namespace BeerML.Regression
 
 
             // Use Poisson Regressionn
-            var trainer = mlContext.Regression.Trainers.PoissonRegression(labelColumnName: "Label", featureColumnName: "Features");
+            var trainer = mlContext.Regression.Trainers.LbfgsPoissonRegression(labelColumnName: "Label", featureColumnName: "Features");
 
             var trainingPipeline = dataProcessPipeline.Append(trainer);
 
@@ -75,7 +75,7 @@ namespace BeerML.Regression
                 new PriceData { FullName="Château de la Berdié Grand Cru", Type="Rött vin", Volume=750, Country="Frankrike" }
             };
 
-            var predFunction = trainedModel.CreatePredictionEngine<PriceData, PricePrediction>(mlContext);
+            var predFunction = mlContext.Model.CreatePredictionEngine<PriceData, PricePrediction>(trainedModel);
 
             foreach (var drink in drinks)
             {

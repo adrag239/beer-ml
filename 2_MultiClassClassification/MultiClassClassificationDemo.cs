@@ -47,7 +47,7 @@ namespace BeerML.MultiClassClassification
                     .Append(mlContext.Transforms.Concatenate("Features", "FullNameFeaturized", "CountryEncoded"));
 
             // Use Multiclass classification
-            var trainer = mlContext.MulticlassClassification.Trainers.StochasticDualCoordinateAscent(DefaultColumnNames.Label, DefaultColumnNames.Features);
+            var trainer = mlContext.MulticlassClassification.Trainers.SdcaMaximumEntropy("Label", "Features");
 
             var trainingPipeline = dataProcessPipeline
                 .Append(trainer)
@@ -75,7 +75,7 @@ namespace BeerML.MultiClassClassification
                 new DrinkData { FullName = "Ca'Montini Prosecco Extra Dry"}
             };
 
-            var predFunction = trainedModel.CreatePredictionEngine<DrinkData, DrinkPrediction>(mlContext);
+            var predFunction = mlContext.Model.CreatePredictionEngine<DrinkData, DrinkPrediction>(trainedModel);
 
             foreach (var drink in drinks)
             {
@@ -92,7 +92,7 @@ namespace BeerML.MultiClassClassification
             var predictions = trainedModel.Transform(testDataView);
             var metrics = mlContext.MulticlassClassification.Evaluate(predictions);
 
-            Console.WriteLine($"Accuracy: {metrics.AccuracyMicro:P2}");
+            Console.WriteLine($"Accuracy: {metrics.MacroAccuracy:P2}");
 
         }
     }

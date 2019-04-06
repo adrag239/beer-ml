@@ -41,7 +41,7 @@ namespace BeerML.BinaryClassification
             var dataProcessPipeline = mlContext.Transforms.Text.FeaturizeText("Features", "FullName");
 
             // Use Binary classification
-            var trainer = mlContext.BinaryClassification.Trainers.StochasticDualCoordinateAscent(labelColumnName: "Beer", featureColumnName: "Features");
+            var trainer = mlContext.BinaryClassification.Trainers.SdcaLogisticRegression(labelColumnName: "Beer", featureColumnName: "Features");
 
             var trainingPipeline = dataProcessPipeline.Append(trainer);
 
@@ -63,7 +63,7 @@ namespace BeerML.BinaryClassification
                 new BeerOrWineData { FullName = "Korlat Cabernet Sauvignon"}
             };
 
-            var predFunction = trainedModel.CreatePredictionEngine<BeerOrWineData, BeerOrWinePrediction>(mlContext);
+            var predFunction = mlContext.Model.CreatePredictionEngine<BeerOrWineData, BeerOrWinePrediction>(trainedModel);
 
             foreach (var drink in drinks)
             {
@@ -87,7 +87,7 @@ namespace BeerML.BinaryClassification
                 "1_BinaryClassification/problem1.csv", 
                 hasHeader: true,
                 separatorChar: ',');
-            var cvResults = mlContext.BinaryClassification.CrossValidate(fullDataView, trainingPipeline, numFolds: 5, labelColumn: "Beer");
+            var cvResults = mlContext.BinaryClassification.CrossValidate(fullDataView, trainingPipeline, numberOfFolds: 5, labelColumnName: "Beer");
             Console.WriteLine($"Avg Accuracy is: {cvResults.Select(r => r.Metrics.Accuracy).Average():P2}");
         }
     }
