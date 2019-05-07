@@ -31,6 +31,8 @@ namespace BeerML.Regression
     {
         public static void Run()
         {
+            Console.WriteLine("Regression");
+
             // Define context
             var mlContext = new MLContext();
 
@@ -81,9 +83,10 @@ namespace BeerML.Regression
             {
                 var prediction = predFunction.Predict(drink);
 
-                Console.WriteLine($"{drink.FullName} is {prediction.Price}");
+                Console.WriteLine($"{drink.FullName} is {prediction.Price} SEK");
             }
 
+            Console.WriteLine();
         }
 
     }

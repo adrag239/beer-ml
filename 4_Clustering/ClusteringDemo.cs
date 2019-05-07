@@ -25,9 +25,10 @@ namespace BeerML.Clustering
     {
         public static void Run()
         {
+            Console.WriteLine("Clustering");
+
             // Define context
             var mlContext = new MLContext();
-
 
             // Load training data
             var trainingDataView = mlContext.Data.LoadFromTextFile<ClusteringData>(
@@ -68,7 +69,7 @@ namespace BeerML.Clustering
                 new ClusteringData { FullName = "Ardmore 21 Years"},
                 new ClusteringData { FullName = "Crémant d'Alsace Riesling Brut"},
                 new ClusteringData { FullName = "Charles Ellner Réserve Brut"},
-                new ClusteringData { FullName = "De Vergy Prestige Rosé"}
+                new ClusteringData { FullName = "Vergy Prestige Rosé"}
             };
 
             foreach (var drink in drinks)
@@ -78,6 +79,7 @@ namespace BeerML.Clustering
                 Console.WriteLine($"{drink.FullName} is {prediction.SelectedClusterId}");
             }
 
+            Console.WriteLine();
         }
     }
 }

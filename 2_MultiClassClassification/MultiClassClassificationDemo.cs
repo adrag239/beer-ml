@@ -30,6 +30,8 @@ namespace BeerML.MultiClassClassification
     {
         public static void Run()
         {
+            Console.WriteLine("Multi Class Classification");
+
             // Define context
             var mlContext = new MLContext();
 
@@ -94,6 +96,7 @@ namespace BeerML.MultiClassClassification
 
             Console.WriteLine($"Accuracy: {metrics.MacroAccuracy:P2}");
 
+            Console.WriteLine();
         }
     }
 }

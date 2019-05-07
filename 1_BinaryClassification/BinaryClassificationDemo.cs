@@ -29,6 +29,8 @@ namespace BeerML.BinaryClassification
     {
         public static void Run()
         {
+            Console.WriteLine("Binary Classification");
+
             // Define context
             var mlContext = new MLContext();
 
@@ -69,7 +71,9 @@ namespace BeerML.BinaryClassification
             {
                 var prediction = predFunction.Predict(drink);
 
-                Console.WriteLine($"{drink.FullName} is {prediction.Beer}");
+                var isBeer = prediction.Beer ? "Beer" : "Wine";
+
+                Console.WriteLine($"{drink.FullName} is {isBeer}");
             }
 
             // Evaluate the model
@@ -87,8 +91,10 @@ namespace BeerML.BinaryClassification
                 "1_BinaryClassification/problem1.csv", 
                 hasHeader: true,
                 separatorChar: ',');
-            var cvResults = mlContext.BinaryClassification.CrossValidate(fullDataView, trainingPipeline, numberOfFolds: 5, labelColumnName: "Beer");
+            var cvResults = mlContext.BinaryClassification.CrossValidate(fullDataView, trainingPipeline, numberOfFolds: 3, labelColumnName: "Beer");
             Console.WriteLine($"Avg Accuracy is: {cvResults.Select(r => r.Metrics.Accuracy).Average():P2}");
+
+            Console.WriteLine();
         }
     }
 }
