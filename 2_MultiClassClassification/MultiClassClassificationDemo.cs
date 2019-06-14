@@ -49,7 +49,7 @@ namespace BeerML.MultiClassClassification
                     .Append(mlContext.Transforms.Concatenate("Features", "FullNameFeaturized", "CountryEncoded"));
 
             // Use Multiclass classification
-            var trainer = mlContext.MulticlassClassification.Trainers.SdcaMaximumEntropy("Label", "Features");
+            var trainer = mlContext.MulticlassClassification.Trainers.SdcaNonCalibrated("Label", "Features");
 
             var trainingPipeline = dataProcessPipeline
                 .Append(trainer)
